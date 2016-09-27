@@ -1,0 +1,12 @@
+[Unit]
+Description=Mind your neighbors service
+After=tlp-init.service
+
+[Service]
+User=jaes
+Restart=on-abort
+ExecStart=/usr/bin/dynhost
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

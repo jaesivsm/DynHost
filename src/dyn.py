@@ -1,8 +1,10 @@
 #!/usr/bin/python3.4
 import json
+import signal
 import logging
 import requests
 from os import path
+from time import sleep
 from urllib.parse import urlunparse, urlencode, ParseResult
 from configparser import ConfigParser
 from logging.handlers import SysLogHandler
@@ -22,33 +24,38 @@ def set_logger(log_level):
     return logger
 
 
-def get_config():
-    config = ConfigParser(defaults={
-            'dyndns_host': 'https://www.ovh.com',
-            'dyndns_nic': '/nic/update',
-            'loglevel': 'INFO',
-            'cache_file': '/run/shm/DynHost.cache',
-            'wildcard': 'OFF',
-            'backmx': 'NO',
-            'system': 'dyndns',
-    })
+def get_config(config=None):
+    if not config:
+        config = ConfigParser(defaults={
+                'dyndns_host': 'https://www.ovh.com',
+                'dyndns_nic': '/nic/update',
+                'loglevel': 'INFO',
+                'cache_file': '/run/shm/DynHost.cache',
+                'wildcard': 'OFF',
+                'backmx': 'NO',
+                'system': 'dyndns',
+                'loop_time_sec': '60',
+        })
     config.read([path.expanduser('~/.config/dynhost.cfg'), '/etc/dynhost.cfg'])
     set_logger(config.get(config.default_section, 'loglevel'))
     return config
 
 
-logger = logging.getLogger('DynHost')
-
-
 @lru_cache(maxsize=None)
 def get_ip():
-    ip = requests.get('http://www.monip.org')\
-            .text.split('IP : ')[1].split('<br')[0]
+    logger = logging.getLogger('DynHost')
+    try:
+        ip = requests.get('http://www.monip.org')\
+                .text.split('IP : ')[1].split('<br')[0]
+    except Exception as error:
+        logger.error("Couldn't retrieve IP: %r", error)
+        return None
     logger.debug('read ip %r', ip)
     return ip
 
 
 def push_dyn_ip(ip, section):
+    logger = logging.getLogger('DynHost')
     logger.warning('sending %r to %r', ip, section.name)
     query = urlencode({'backmx': section.get('backmx'),
                        'hostname': section.get('domain'), 'myip': ip,
@@ -82,8 +89,8 @@ def write_cache_ip(domain, ip, cache_file):
         return json.dump(caches, fd)
 
 
-def main():
-    config = get_config()
+def browse_config(config):
+    logger = logging.getLogger('DynHost')
     for section in config.values():
         if section.name == config.default_section:
             continue
@@ -96,13 +103,33 @@ def main():
         domain = section.get('domain')
 
         past_ip = read_cached_ip(section.get('cache_file'), domain)
-
-        if past_ip == get_ip():
-            logger.debug("ip %r has not changed, doing nothing", get_ip())
+        current_ip = get_ip()
+        if current_ip is None:
             continue
 
-        push_dyn_ip(get_ip(), section)
-        write_cache_ip(domain, get_ip(), cache_file)
+        if past_ip == current_ip:
+            logger.debug("ip %r has not changed, doing nothing", current_ip)
+            continue
+
+        push_dyn_ip(current_ip, section)
+        write_cache_ip(domain, current_ip, cache_file)
+
+
+def main():
+    config = get_config()
+
+    loop_time_sec = int(config.get(config.default_section, 'loop_time_sec'))
+
+    def handle_sighup(signum, frame):
+        logger = logging.getLogger('DynHost')
+        logger.warn('reloading configuration')
+        get_config(config)
+
+    signal.signal(signal.SIGHUP, handle_sighup)
+
+    while True:
+        browse_config(config)
+        sleep(loop_time_sec)
 
 
 if __name__ == '__main__':
