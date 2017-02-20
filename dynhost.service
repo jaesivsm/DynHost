@@ -1,9 +1,8 @@
 [Unit]
-Description=Mind your neighbors service
+Description=Dynhost revisited
 After=tlp-init.service
 
 [Service]
-User=jaes
 Restart=on-abort
 ExecStart=/usr/bin/dynhost
 ExecReload=/bin/kill -HUP $MAINPID
