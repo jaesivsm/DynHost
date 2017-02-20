@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import sys
 import json
 import signal
 import logging
@@ -128,9 +129,12 @@ def main():
 
     signal.signal(signal.SIGHUP, handle_sighup)
 
-    while True:
+    if '--once' in sys.argv:
         browse_config(config)
-        sleep(loop_time_sec)
+    else:
+        while True:
+            browse_config(config)
+            sleep(loop_time_sec)
 
 
 if __name__ == '__main__':
