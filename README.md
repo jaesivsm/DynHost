@@ -1,5 +1,5 @@
 # DynHost
-DynHost revisited
+Multiple DynDNS updating script
 
 ## Purpose
 
@@ -18,11 +18,14 @@ Both procedure will be explained below but start the same way.
 
 You'll have to install ``python3-requests`` on your system one way or another (through the system package manager (apt, yum, pacman, rpm, ...) or through a python package manager like pip).
 
-### Copy the source
+### Copy and install from the source
+
+Note that you can install it either directly on your system (which will require admin privileges) or in an virtualenv (which will prevent you from using DynHost through SystemD).
 
 ```bash
 git clone https://github.com/jaesivsm/DynHost.git
 cd DynHost
+python3 setup.py install
 ```
 
 ### Copy and edit the configuration
@@ -59,7 +62,6 @@ Link the service file (path may vary depending on you systemd configuration) and
 
 ```bash
 ln -s $(pwd)/dynhost.service /etc/systemd/system
-ln -s $(pwd)/src/dynhost.py /usr/bin/dynhost
 systemctl daemon-reload
 service dynhost start
 ```
@@ -73,7 +75,7 @@ service dynhost status
 Edit the crontab you want and set it to run every few minutes and don't forget the --once option.
 
 ```
-*/2 * * * * /your/path/to/DynHost/src/dynhost.py --once
+*/2 * * * * /your/path/to/DynHost/src/dynhost --once
 ```
 
 # Debugging
