@@ -1,10 +1,10 @@
 [Unit]
-Description=Dynhost revisited
+Description=Multiple DynDNS updating script
 After=tlp-init.service
 
 [Service]
 Restart=on-abort
-ExecStart=/usr/bin/dynhost
+ExecStart=/usr/local/bin/dynhost --loop
 ExecReload=/bin/kill -HUP $MAINPID
 
 [Install]

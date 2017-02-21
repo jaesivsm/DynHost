@@ -61,7 +61,6 @@ domain=mydomain.com
 Link the service file (path may vary depending on you systemd configuration) and launch the service.
 
 ```bash
-ln -s $(pwd)/dynhost.service /etc/systemd/system
 systemctl daemon-reload
 service dynhost start
 ```
@@ -75,7 +74,7 @@ service dynhost status
 Edit the crontab you want and set it to run every few minutes and don't forget the --once option.
 
 ```
-*/2 * * * * /your/path/to/DynHost/src/dynhost --once
+*/2 * * * * /usr/local/bin/dynhost
 ```
 
 # Debugging

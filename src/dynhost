@@ -129,12 +129,12 @@ def main():
 
     signal.signal(signal.SIGHUP, handle_sighup)
 
-    if '--once' in sys.argv:
-        browse_config(config)
-    else:
+    if '--loop' in sys.argv:
         while True:
             browse_config(config)
             sleep(loop_time_sec)
+    else:
+        browse_config(config)
 
 
 if __name__ == '__main__':
