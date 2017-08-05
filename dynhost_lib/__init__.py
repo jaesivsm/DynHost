@@ -1,12 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-import sys
 import json
 import signal
 import logging
 import requests
 from os import path
-from time import sleep
 from urllib.parse import urlunparse, urlencode, ParseResult
 from configparser import ConfigParser
 from logging.handlers import SysLogHandler
@@ -117,25 +113,4 @@ def browse_config(config):
         write_cache_ip(domain, current_ip, cache_file)
 
 
-def main():
-    config = get_config()
 
-    loop_time_sec = int(config.get(config.default_section, 'loop_time_sec'))
-
-    def handle_sighup(signum, frame):
-        logger = logging.getLogger('DynHost')
-        logger.warn('reloading configuration')
-        get_config(config)
-
-    signal.signal(signal.SIGHUP, handle_sighup)
-
-    if '--loop' in sys.argv:
-        while True:
-            browse_config(config)
-            sleep(loop_time_sec)
-    else:
-        browse_config(config)
-
-
-if __name__ == '__main__':
-    main()

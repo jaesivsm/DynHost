@@ -3,7 +3,7 @@ from setuptools import setup
 
 
 setup(name='DynHost',
-      version='1.0.1',
+      version='1.0.2',
       description='Multiple DynDNS updating script',
       keywords='dynhost dyndhs ovh',
       classifiers=[
@@ -17,7 +17,8 @@ setup(name='DynHost',
       author_email="francois@schmidts.fr",
       maintainer="François Schmidts",
       maintainer_email="francois@schmidts.fr",
-      scripts=['src/dynhost'],
+      scripts=['dynhost'],
+      packages=['dynhost_lib'],
       url='https://github.com/jaesivsm/DynHost',
       install_requires=['requests>=2.10.0'],
       data_files=[('/etc/systemd/system', ['dynhost.service'])],
