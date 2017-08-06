@@ -2,9 +2,13 @@
 from setuptools import setup
 
 
+with open('README.md') as fd:
+    readme = fd.read()
+
 setup(name='DynHost',
-      version='1.0.2',
+      version='1.0.5',
       description='Multiple DynDNS updating script',
+      long_description=readme,
       keywords='dynhost dyndhs ovh',
       classifiers=[
           "Intended Audience :: System Administrators",
@@ -21,5 +25,5 @@ setup(name='DynHost',
       packages=['dynhost_lib'],
       url='https://github.com/jaesivsm/DynHost',
       install_requires=['requests>=2.10.0'],
-      data_files=[('/etc/systemd/system', ['dynhost.service'])],
+      data_files=[('', ['dynhost.service', 'README.md'])],
       )

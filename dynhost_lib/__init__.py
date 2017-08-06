@@ -111,6 +111,3 @@ def browse_config(config):
 
         push_dyn_ip(current_ip, section)
         write_cache_ip(domain, current_ip, cache_file)
-
-
-
